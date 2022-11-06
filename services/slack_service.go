@@ -29,9 +29,16 @@ func (s *slackService) GetAllUsers() ([]SlackUser, error) {
 func (s *slackService) parseUsers(users []slack.User) []SlackUser {
 	var slackUsers []SlackUser
 	for _, user := range users {
+		if s.isBanned(user) {
+			continue
+		}
 		slackUsers = append(slackUsers, NewSlackUser(user.ID, user.Name))
 	}
 	return slackUsers
+}
+
+func (s *slackService) isBanned(user slack.User) bool {
+	return user.IsBot || user.Name == "slackbot"
 }
 
 func (s *slackService) ReplyMessage(channel string, text string, messageTimestamp string) error {

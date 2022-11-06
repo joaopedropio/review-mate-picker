@@ -5,23 +5,25 @@ import (
 	"math/rand"
 )
 
-type MateMention struct {
-	name             string
+type MateMentionBuilder interface {
+	Build(name string) string
+}
+
+type mateMentionBuilder struct {
 	mentionTemplates []string
 }
 
-func NewMateMention(name string) MateMention {
+func NewMateMention() MateMentionBuilder {
 	mentionTemplates := []string{
 		"<@%s> can you review my pull request?",
 		"<@%s> help this friend by reviewing his/her pull request?",
 	}
-	return MateMention{
-		name:             name,
+	return &mateMentionBuilder{
 		mentionTemplates: mentionTemplates,
 	}
 }
 
-func (mm MateMention) Build() string {
+func (mm mateMentionBuilder) Build(name string) string {
 	index := rand.Int() % len(mm.mentionTemplates)
-	return fmt.Sprintf(mm.mentionTemplates[index], mm.name)
+	return fmt.Sprintf(mm.mentionTemplates[index], name)
 }

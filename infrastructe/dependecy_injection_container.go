@@ -20,7 +20,8 @@ func NewDependencyInjectionContainer(env Environment) *Container {
 	pickerFactory := domain.NewPickerFactory(env.GetPickingType())
 	picker := pickerFactory.Build()
 	slackService := services.NewSlackService(client)
-	mateService := services.NewMateService(slackService, picker)
+	mateMentionBuilder := domain.NewMateMention()
+	mateService := services.NewMateService(slackService, picker, mateMentionBuilder)
 	tsCache := repositories.NewMessageTimestampCache()
 	return &Container{
 		SlackClient:    client,

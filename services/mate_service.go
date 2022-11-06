@@ -10,14 +10,16 @@ type MateService interface {
 }
 
 type mateService struct {
-	slackService SlackService
-	picker       domain.Picker
+	slackService       SlackService
+	picker             domain.Picker
+	mateMentionBuilder domain.MateMentionBuilder
 }
 
-func NewMateService(slackService SlackService, picker domain.Picker) MateService {
+func NewMateService(slackService SlackService, picker domain.Picker, mateMentionBuilder domain.MateMentionBuilder) MateService {
 	return &mateService{
-		slackService: slackService,
-		picker:       picker,
+		slackService:       slackService,
+		picker:             picker,
+		mateMentionBuilder: mateMentionBuilder,
 	}
 }
 
@@ -32,7 +34,7 @@ func (s *mateService) PickMateToReview(channelID string, userID string, messageT
 	if err != nil {
 		return fmt.Errorf("unable to pick mate: %w", err)
 	}
-	mateMention := domain.NewMateMention(mate.Name()).Build()
+	mateMention := s.mateMentionBuilder.Build(mate.Name())
 	if err := s.slackService.ReplyMessage(channelID, mateMention, messageTimestamp); err != nil {
 		return fmt.Errorf("unable to reply message: %w", err)
 	}

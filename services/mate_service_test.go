@@ -12,39 +12,32 @@ func TestMateService_PickMateToReview_ShouldSucceed(t *testing.T) {
 	// Arrange
 	ctrl := gomock.NewController(t)
 	slackService := services.NewMockSlackService(ctrl)
-	users := []string{"joao", "pedro", "marcos"}
+	channelID := "channel1"
+	messageTimestamp := "121212121"
+	senderID := "123"
+	senderName := "marcos"
+	users := []services.SlackUser{
+		{ID: "456", Name: "joao"},
+		{ID: "789", Name: "pedro"},
+		{ID: senderID, Name: senderName},
+	}
+	expectedMateMention := "<@marcos> can you review my pull request?"
 	slackService.
 		EXPECT().
 		GetAllUsers().
 		Return(users, nil)
 	slackService.
 		EXPECT().
-		ReplyMessage("channel1", "@marcos can you review my pull request?", "121212121").
+		ReplyMessage(channelID, expectedMateMention, messageTimestamp).
 		Return(nil)
 	picker := domain.NewMockPicker(ctrl)
-	picker.EXPECT().Pick(gomock.Any()).Return(domain.NewPerson("", "marcos"), nil)
-	mateService := services.NewMateService(slackService, picker)
+	picker.EXPECT().Pick(gomock.Any()).Return(domain.NewPerson(senderID, senderName), nil)
+	mateMention := domain.NewMockMateMentionBuilder(ctrl)
+	mateMention.EXPECT().Build(senderName).Return(expectedMateMention)
+	mateService := services.NewMateService(slackService, picker, mateMention)
 
 	// Act
-	err := mateService.PickMateToReview("channel1", "fulano", "121212121")
-
-	// Assert
-	require.NoError(t, err)
-}
-
-func TestMateService_PickMateToReview_ShouldDoNothingWhenMessageDoesNotHaveAValidGithubPullRequestURL(t *testing.T) {
-	// Arrange
-	ctrl := gomock.NewController(t)
-	slackService := services.NewMockSlackService(ctrl)
-	slackService.
-		EXPECT().
-		GetAllUsers().
-		MaxTimes(0)
-	picker := domain.NewStatelessPicker()
-	mateService := services.NewMateService(slackService, picker)
-
-	// Act
-	err := mateService.PickMateToReview("channel1", "fulano", "121212121")
+	err := mateService.PickMateToReview(channelID, senderID, messageTimestamp)
 
 	// Assert
 	require.NoError(t, err)
