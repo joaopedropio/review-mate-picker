@@ -38,7 +38,7 @@ func (s *slackService) parseUsers(users []slack.User) []SlackUser {
 }
 
 func (s *slackService) isBanned(user slack.User) bool {
-	return user.IsBot || user.Name == "slackbot"
+	return user.IsBot || user.Name == "slackbot" // || user.RealName == "Carlos Cabral" -> user.RealName is the name displayed on Slack
 }
 
 func (s *slackService) ReplyMessage(channel string, text string, messageTimestamp string) error {
