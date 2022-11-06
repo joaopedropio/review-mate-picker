@@ -1,22 +1,22 @@
-# review-mate-picker
+# Review Mate Picker
 
-- cria o app
+Como adicionar um app a um channel?
+- cria o app em https://api.slack.com/apps
+- configura a url do bot em Enable Events -> https://<bot_url>/events
+- Add Bot User Event e Add Workspace Event -> link_shared
+- App unfurl domains -> github.com
+- convida o app para o channel
 
-- configura url do bot no app
+- Scopes:
+- Bot Token Scopes:
+  - channels:history
+  - chat:write
+  - links:read
+  - users:read
+- User Token Scopes:
+  - links:read
 
+- Variáveis de ambiente:
 
-- tem q convidar bot pro channel -> /invite @botname
-
-- permissões:
-bot:
-	channels:history
-	chat:write
-	groups:history
-	im:history
-	links:read
-	mpim:history
-	users:read
-
-- subscribe to bot events and events on behalf of users -> link_shared
-
-- app unfur domain -> github.com
+![](images/auth_token.png)
+![](images/signing_secret.png)
