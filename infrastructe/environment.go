@@ -5,9 +5,12 @@ import (
 	"github.com/joaopedropio/review-mate-picker/domain"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type Environment interface {
+	GetAllowedChannels() []string
+	GetBannedUsers() []string
 	GetSlackAuthToken() string
 	GetSlackSigningSecret() string
 	GetHttpPort() uint64
@@ -16,14 +19,26 @@ type Environment interface {
 }
 
 type environment struct {
-	env           string
-	token         string
-	signingSecret string
-	httpPort      uint64
-	pickingType   domain.PickingType
+	env             string
+	token           string
+	signingSecret   string
+	httpPort        uint64
+	pickingType     domain.PickingType
+	allowedChannels []string
+	bannedUsers     []string
 }
 
 func NewEnvironment() (Environment, error) {
+	bu, ok := os.LookupEnv("BANNED_USERS")
+	if !ok {
+		return nil, fmt.Errorf("unable to get BANNED_USERS environment variable")
+	}
+	bannedUsers := parseStringList(bu)
+	ac, ok := os.LookupEnv("ALLOWED_CHANNELS")
+	if !ok {
+		return nil, fmt.Errorf("unable to get ALLOWED_CHANNELS environment variable")
+	}
+	allowedChannels := parseStringList(ac)
 	env, ok := os.LookupEnv("ENVIRONMENT")
 	if !ok {
 		return nil, fmt.Errorf("unable to get ENVIRONMENT environment variable")
@@ -53,12 +68,22 @@ func NewEnvironment() (Environment, error) {
 		return nil, fmt.Errorf("unable to get SLACK_AUTH_TOKEN environment variable")
 	}
 	return &environment{
-		token:         token,
-		signingSecret: signingSecret,
-		httpPort:      port,
-		pickingType:   pickingType,
-		env:           env,
+		token:           token,
+		signingSecret:   signingSecret,
+		httpPort:        port,
+		pickingType:     pickingType,
+		env:             env,
+		allowedChannels: allowedChannels,
+		bannedUsers:     bannedUsers,
 	}, nil
+}
+
+func (e *environment) GetBannedUsers() []string {
+	return e.bannedUsers
+}
+
+func (e *environment) GetAllowedChannels() []string {
+	return e.allowedChannels
 }
 
 func (e *environment) GetSlackAuthToken() string {
@@ -89,4 +114,8 @@ func parsePickingType(pickingType string) (domain.PickingType, error) {
 		return domain.PickingTypeStateful, nil
 	}
 	return "", fmt.Errorf("%s is no a valid picking type", pickingType)
+}
+
+func parseStringList(list string) []string {
+	return strings.Split(list, ",")
 }

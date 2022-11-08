@@ -8,13 +8,8 @@ Como adicionar um app a um channel?
 - convida o app para o channel
 
 - Scopes:
-- Bot Token Scopes:
-  - channels:history
-  - chat:write
-  - links:read
-  - users:read
-- User Token Scopes:
-  - links:read
+
+![](images/scopes.png)
 
 - Variáveis de ambiente:
 

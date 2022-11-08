@@ -24,9 +24,9 @@ func NewMateService(slackService SlackService, picker domain.Picker, mateMention
 }
 
 func (s *mateService) PickMateToReview(channelID string, userID string, messageTimestamp string) error {
-	users, err := s.slackService.GetAllUsers()
+	users, err := s.slackService.GetAllUsersFromChannel(channelID, true)
 	if err != nil {
-		return fmt.Errorf("unable to get all users by channel: %w", err)
+		return fmt.Errorf("unable to get all users by channel: channel id: %s: %w", channelID, err)
 	}
 	persons := s.parseUsersToPersons(users)
 	persons = persons.RemoveByID(userID)
