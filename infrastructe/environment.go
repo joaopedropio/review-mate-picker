@@ -51,9 +51,9 @@ func NewEnvironment() (Environment, error) {
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse picking type: %w", err)
 	}
-	httpPort, ok := os.LookupEnv("HTTP_PORT")
+	httpPort, ok := os.LookupEnv("PORT")
 	if !ok {
-		return nil, fmt.Errorf("unable to get HTTP_PORT environment variable")
+		return nil, fmt.Errorf("unable to get PORT environment variable")
 	}
 	port, err := strconv.ParseUint(httpPort, 10, 32)
 	if err != nil {
